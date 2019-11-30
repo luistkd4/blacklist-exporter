@@ -1,0 +1,30 @@
+groups:
+
+- name: Prometheus
+  rules:
+  - alert: 'Shared High CPU Load'
+    expr: node_load1 > 10
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high load"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
+
+  - alert: 'Shared Out Of Memory'
+    expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100) < 20
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Out of memory (instance {{ $labels.instance }})"
+      description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+  - alert: 'Shared Out Of Disk Space'
+    expr: node_filesystem_free_bytes{mountpoint ="/"} / node_filesystem_size_bytes{mountpoint ="/"} * 100 < 10
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Out of disk space (instance {{ $labels.instance }})"
+      description: "Disk is almost full in {{ $labels.instance }} (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

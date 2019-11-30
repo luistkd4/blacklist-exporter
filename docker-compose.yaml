@@ -1,0 +1,22 @@
+version: '3'
+services:
+  prom:
+    container_name: prom
+    image: prom/prometheus
+    volumes:
+      - './prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml'
+      - './prometheus/targets.json:/etc/prometheus/targets.json'
+    restart: always
+    ports:
+      - '9090:9090'
+  
+  blacklist_exporter:
+    container_name: blacklist_exporter
+    image: prom/blacklist
+    restart: always
+    ports:
+      - '5000:5000'
+    depends_on:
+      - prom 
+      #docker run -p 9090:9090 -v ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+      #PS D:\dev\Python\blacklist_exporter> docker run -p 9090:9090 --name prom -v D:\Dev\Python\blacklist_exporter\prometheus\prometheus.yaml:/etc/prometheus/prometheus.yaml -v D:\Dev\Python\blacklist_exporter\prometheus\targets.json:/etc/prometheus/targets.json -d prom/prometheus

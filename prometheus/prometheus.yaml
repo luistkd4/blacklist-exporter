@@ -1,0 +1,47 @@
+# my global config
+global:
+  scrape_interval:     10m # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  scrape_timeout:      10m # scrape_timeout is set to the global default (10s).
+  evaluation_interval: 1m # Evaluate rules every 15 seconds. The default is every 1 minute.
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+       - 177.55.116.30:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - alert.prometheus.yml
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+      labels:
+        service: prometheus
+        instance: prometheus
+
+  - job_name: 'Blacklist'
+    metrics_path: /monitor
+    file_sd_configs:
+      - files:
+        - targets.json
+    # static_configs:
+    #   - targets:
+    #     - 177.101.248.90
+    #     - 200.143.59.163
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_ip
+      - source_labels: [__param_ip]
+        target_label: instance
+      - target_label: __address__
+        replacement: 172.19.0.2:5000
+
+    
+   # https://stackoverflow.com/questions/55701848/json-exporter-needs-to-be-passed-the-target-and-the-json-as-a-parameter-in-prom
+   # https://www.robustperception.io/controlling-the-instance-label
+   # https://github.com/prometheus/prometheus/issues/1417
+   # https://pt.slideshare.net/roidelapluie/taking-advantage-of-prometheus-relabeling-109483749
